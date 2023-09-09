@@ -2,7 +2,7 @@
   "name": "scrapyapi",
   "version": "0.0.1",
   "description": "Tired of the mess when scraping data from websites? Meet ScrapyAPI, the tool that turns web chaos into clean, structured data.",
-  "main": "index.js",
+  "main": "dist/index.js",
   "directories": {
     "doc": "docs"
   },
