@@ -10,21 +10,12 @@ import { LLMChain } from "langchain/chains";
 
 const model = new ChatOpenAI({ temperature: 0 });
 
-interface ExecutorConfig {
-  dryRun?: boolean;
-  verbose?: boolean;
-}
-
 interface ChatConfig {
   schema: z.AnyZodObject;
   taskInstructions?: string;
 }
 
-export async function run(
-  crawlArgs: CrawlArgs,
-  chatConfig: ChatConfig,
-  config: ExecutorConfig = {}
-) {
+export async function run(crawlArgs: CrawlArgs, chatConfig: ChatConfig) {
   const data = await crawl(crawlArgs);
   const text = data.map(({ body }) => body).join("\n\n***\n\n");
 
