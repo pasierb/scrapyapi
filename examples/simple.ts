@@ -11,7 +11,7 @@ async function main() {
   // URLs to crawl.
   const urls = ["https://familyfunmap.ch/spots/schongiland/"];
 
-  const data = await run(urls, schema);
+  const data = await run({ urls }, { schema });
   console.log(data);
 }
 

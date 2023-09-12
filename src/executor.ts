@@ -2,22 +2,41 @@ import "dotenv/config";
 
 import { createPrompt } from "./prompts";
 import { crawl } from "./crawler";
+import type { CrawlArgs } from "./crawler";
 import { z } from "zod";
-import { OpenAI } from "langchain/llms/openai";
+import { ChatOpenAI } from "langchain/chat_models/openai";
 
-const model = new OpenAI({ temperature: 0 });
+import { LLMChain } from "langchain/chains";
 
-export async function run(urls: string[], schema: z.AnyZodObject) {
-  const { prompt, parser } = createPrompt(schema);
+const model = new ChatOpenAI({ temperature: 0 });
 
-  const data = await crawl(urls);
+interface ExecutorConfig {
+  dryRun?: boolean;
+  verbose?: boolean;
+}
 
-  return Promise.all(
-    data.map(async ({ body }) => {
-      const input = await prompt.format({ text: body });
-      const response = await model.call(input);
+interface ChatConfig {
+  schema: z.AnyZodObject;
+  taskInstructions?: string;
+}
 
-      return parser.parse(response);
-    })
-  );
+export async function run(
+  crawlArgs: CrawlArgs,
+  chatConfig: ChatConfig,
+  config: ExecutorConfig = {}
+) {
+  const data = await crawl(crawlArgs);
+  const text = data.map(({ body }) => body).join("\n\n***\n\n");
+
+  const { schema, taskInstructions = "" } = chatConfig;
+  const { prompt, parser } = await createPrompt(schema);
+  const chain = new LLMChain({ llm: model, prompt });
+
+  const response = await chain.call({
+    text,
+    formatInstructions: parser.getFormatInstructions(),
+    taskInstructions,
+  });
+
+  return parser.parse(response.text);
 }
