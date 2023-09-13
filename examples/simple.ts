@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { run } from "../src/executor";
+import { Executor } from "../src/executor";
 
 async function main() {
   // zod schema for the data we want to extract.
@@ -10,8 +10,9 @@ async function main() {
 
   // URLs to crawl.
   const urls = ["https://familyfunmap.ch/spots/schongiland/"];
+  const executor = new Executor({ schema });
 
-  const data = await run({ urls }, { schema });
+  const data = await executor.run({ urls });
   console.log(data);
 }
 
